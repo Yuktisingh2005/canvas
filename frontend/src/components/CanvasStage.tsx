@@ -154,8 +154,7 @@ export function CanvasStage({ onExportReady }: CanvasStageProps) {
           {[...elements]
             .sort((a, b) => a.zIndex - b.zIndex)
             .map((el) => {
-              const commonProps = {
-                key: el.id,
+                            const commonProps = {
                 id: el.id,
                 x: el.x,
                 y: el.y,
@@ -175,14 +174,20 @@ export function CanvasStage({ onExportReady }: CanvasStageProps) {
 
               if (el.type === "rect") {
                 return (
-                  <Rect {...commonProps} width={el.width ?? 100} height={el.height ?? 80} />
+                  <Rect
+                    key={el.id}
+                    {...commonProps}
+                    width={el.width ?? 100}
+                    height={el.height ?? 80}
+                  />
                 );
               }
               if (el.type === "circle") {
-                return <Circle {...commonProps} radius={el.radius ?? 50} />;
+                return <Circle key={el.id} {...commonProps} radius={el.radius ?? 50} />;
               }
               return (
                 <Text
+                  key={el.id}
                   {...commonProps}
                   text={el.text ?? "Text"}
                   fontSize={el.fontSize ?? 24}
