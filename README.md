@@ -3,6 +3,7 @@
 A canvas editor built for the Glazia Full Stack Developer Intern assignment — create rectangles, circles, and text; select, drag, resize, and rotate them; edit their properties; and save/load canvases per user, backed by MongoDB.
 
 **Live demo:** [add your deployed URL here]
+**Repo:** [add your repo link here]
 
 ## Tech stack
 
@@ -29,7 +30,7 @@ cd backend
 npm install
 ```
 
-Create a `.env` file in `backend/`:
+Create a `.env` file in `backend/` (see `.env.example` for the exact keys needed):
 
 ```
 MONGODB_URI=<your MongoDB Atlas connection string>
@@ -52,7 +53,7 @@ cd frontend
 npm install
 ```
 
-Create a `.env.local` file in `frontend/`:
+Create a `.env.local` file in `frontend/` (see `.env.example` for the exact keys needed):
 
 ```
 NEXT_PUBLIC_API_URL=http://localhost:5000/api
