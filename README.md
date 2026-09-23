@@ -99,25 +99,62 @@ Both `backend/` and `frontend/` have their own `package.json` with exact version
 | typescript | Type checking |
 | eslint, eslint-config-next | Linting |
 
+## Architecture diagram
+
+```mermaid
+flowchart TD
+    subgraph Client["Browser"]
+        UI["Next.js App<br/>(Login, Dashboard, Canvas Editor)"]
+        Store["Zustand Store<br/>(auth + canvas state)"]
+        UI <--> Store
+    end
+
+    subgraph Server["Backend (Express)"]
+        MW["authMiddleware<br/>(checks JWT)"]
+        VAL["Zod validation"]
+        CTRL["Controllers<br/>(auth, canvas)"]
+        MW --> VAL --> CTRL
+    end
+
+    DB[("MongoDB Atlas<br/>users, canvases")]
+
+    UI -- "REST API calls<br/>(Authorization: Bearer token)" --> MW
+    CTRL -- "Mongoose queries" --> DB
+    DB -- "results" --> CTRL
+    CTRL -- "JSON response" --> UI
+```
+
+**How a request flows, in plain terms:**
+1. The user does something in the browser (draws a shape, clicks Save, logs in).
+2. The frontend sends a request to the backend, attaching the user's login token in the request header.
+3. The backend checks that token is valid before doing anything else.
+4. If valid, the request is checked for correct data (validation), then handled by a controller.
+5. The controller talks to MongoDB to read or write data.
+6. The result goes back to the frontend, which updates what the user sees.
+
 ## Architecture decisions
 
-- **Auth:** JWT-based, stateless. Passwords are hashed with bcrypt before storage. Every canvas document carries a `userId`, and all canvas routes are protected by an `authMiddleware` that verifies the token and attaches `req.userId` — controllers always scope queries by this value, never by a userId supplied in the request body, so one user can never read or modify another's canvases even if they guessed an id.
+Explained simply — what each choice is, and why it was made:
 
-- **Single-document canvas model:** a canvas and all of its elements live in one MongoDB document rather than a separate `elements` collection. Canvases are always read and written as a whole (open one, edit several elements, save), so this avoids unnecessary joins/queries for data that's naturally atomic per-canvas.
+- **Login system (JWT):** When a user logs in, the server gives them a signed token (like a digital ID card). The frontend saves this token and sends it along with every request. The server checks the token to know who's asking and to make sure they're allowed to see or change that data. Passwords are never stored as plain text — they're hashed (scrambled in a one-way way) before saving, so even we can't read the original password.
 
-- **Client state:** canvas elements live in a Zustand store (`canvasStore`), not local component state. The Toolbar, the Konva stage, the Properties Panel, and the Layers panel all need to read and write the same element list and the same "currently selected element" without prop-drilling through several component layers.
+- **Each user only sees their own canvases:** Every canvas saved in the database is tagged with the id of the user who created it. Whenever the backend fetches, updates, or deletes a canvas, it always double-checks that the canvas belongs to the person making the request — so no one can access someone else's canvas, even by guessing its ID.
 
-- **State flows one way:** Konva shapes are rendered *from* the Zustand store, not the other way around. After a drag or a transform (resize/rotate), the shape's new `x/y/width/height/radius/rotation` is read back out of the Konva node and written into the store — Konva's internal node state is treated as transient, and the store is the single source of truth. This is also why every resize resets the Konva node's internal `scale` back to 1 after folding it into the stored width/height/radius/fontSize — otherwise repeated resizes would compound scale on top of scale.
+- **One canvas = one database document:** Instead of storing each shape as a separate database entry, an entire canvas (its name and all its shapes) is saved as a single document in MongoDB. This is simpler and faster since a canvas is always opened, edited, and saved as one whole thing anyway.
 
-- **Undo/Redo:** implemented as two stacks (`past` and `future`) of full element-array snapshots in the Zustand store, capped at 50 entries. Every mutating action (add, update, delete, reorder) pushes the pre-change state onto `past` and clears `future`. This is simple and robust for a canvas of this scale; a production app with much larger documents might instead store diffs rather than full snapshots.
+- **Where the app "remembers" things (state):** All the shapes on the canvas, which one is selected, and other live data are kept in one central place in the frontend (a Zustand store), instead of being scattered across different components. This way, the toolbar, the canvas, and the side panels are always looking at the same up-to-date information.
 
-- **Autosave:** a canvas is created in the database the instant a user clicks "New canvas" (rather than waiting for an explicit first save), so a debounced autosave effect — watching `elements` and `canvasName`, firing 2 seconds after the last change — has a valid canvas id to update from the very first edit.
+- **The data controls what's drawn, not the other way around:** When you drag or resize a shape, the canvas library (Konva) moves it on screen first — but right after, we read its new position/size and save that back into our central state. That state is the "real" source of truth. This keeps things predictable and is also what makes Undo/Redo possible.
 
-- **Validation:** all request bodies are validated with Zod schemas before reaching controllers, so controllers can trust the shape of `req.body`.
+- **Undo/Redo:** Every time something changes (a shape is added, moved, resized, or deleted), the app quietly saves a snapshot of "how things looked right before that change." Pressing Undo just goes back to the last snapshot; Redo moves forward again. Up to 50 steps of history are kept.
 
-- **Inline text editing:** double-clicking a text element overlays a real HTML `<textarea>` positioned exactly over the Konva text node (matching its font size, rotation, and position), rather than using a separate modal or side-panel input, so editing feels native to the canvas.
+- **Autosave:** As soon as a user creates a new canvas, it's immediately saved to the database (even if it's empty). After that, any change automatically saves itself 2 seconds after the user stops editing — so there's no need to remember to click Save.
 
-- **Auth token storage:** the JWT is stored in `localStorage` rather than an httpOnly cookie. This was a deliberate tradeoff for this deployment — frontend (Vercel) and backend (Render/Railway) live on different domains, and cookie-based auth across different domains requires `SameSite=None; Secure` plus `credentials: true` on every request, which several browsers restrict by default for third-party cookies. A `Bearer` token in an `Authorization` header sidesteps that entirely at the cost of slightly weaker XSS protection — see Known limitations below.
+- **Checking data before saving it (validation):** Before the backend saves anything a user sends, it checks that the data is in the right shape and format. This stops bad or broken data from ever reaching the database.
+
+- **Editing text directly on the canvas:** Double-clicking a text box lets you type right where it is, instead of opening a separate box elsewhere on the screen — it feels more natural, like editing text in Canva or Figma.
+
+- **Why the login token is stored in the browser's localStorage instead of a cookie:** The frontend (Vercel) and backend (Render/Railway) live on two different web addresses. Cookies get complicated and unreliable across different domains — many browsers block them by default. Storing the token in localStorage and sending it manually with each request avoids that problem entirely. The small tradeoff is explained in Known Limitations below.
 
 ## API Endpoints
 
