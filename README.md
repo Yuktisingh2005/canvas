@@ -52,7 +52,7 @@ cd frontend
 npm install
 ```
 
-Create a `.env.local` file in `frontend/` (see `.env.example` for the exact keys needed):
+Create a `.env.local` file in `frontend/`:
 
 ```
 NEXT_PUBLIC_API_URL=http://localhost:5000/api
