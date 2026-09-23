@@ -3,6 +3,7 @@
 A canvas editor built for the Glazia Full Stack Developer Intern assignment — create rectangles, circles, and text; select, drag, resize, and rotate them; edit their properties; and save/load canvases per user, backed by MongoDB.
 
 **Live demo:** [add your deployed URL here]
+**Repo:** [add your repo link here]
 
 ## Tech stack
 
@@ -27,10 +28,9 @@ canvas/
 ```bash
 cd backend
 npm install
-cp .env.example .env
 ```
 
-Fill in `.env`:
+Create a `.env` file in `backend/` (see `.env.example` for the exact keys needed):
 
 ```
 MONGODB_URI=<your MongoDB Atlas connection string>
@@ -51,10 +51,9 @@ Runs on `http://localhost:5000`. Health check: `GET /api/health`.
 ```bash
 cd frontend
 npm install
-cp .env.example .env.local
 ```
 
-Fill in `.env.local`:
+Create a `.env.local` file in `frontend/` (see `.env.example` for the exact keys needed):
 
 ```
 NEXT_PUBLIC_API_URL=http://localhost:5000/api
@@ -65,6 +64,40 @@ npm run dev
 ```
 
 Runs on `http://localhost:3000`. Run the backend first — the frontend depends on it for everything past the login screen.
+
+## Dependencies
+
+Both `backend/` and `frontend/` have their own `package.json` with exact versions, restored automatically by `npm install`. Full list of what each side uses:
+
+**Backend (`backend/package.json`)**
+
+| Package | Purpose |
+|---|---|
+| express | REST API framework |
+| mongoose | MongoDB ODM |
+| bcryptjs | Password hashing |
+| jsonwebtoken | JWT signing/verification |
+| cors | Cross-origin request handling |
+| dotenv | Environment variable loading |
+| morgan | Request logging |
+| zod | Request body validation |
+| typescript, ts-node, nodemon | Dev tooling — TypeScript compilation and auto-restart |
+| @types/* | Type definitions for the above |
+
+**Frontend (`frontend/package.json`)**
+
+| Package | Purpose |
+|---|---|
+| next, react, react-dom | Core framework |
+| konva, react-konva | Canvas rendering (Stage, Layer, Transformer, shapes) |
+| zustand | Client-side state (canvas elements, selection, undo/redo history, auth) |
+| axios | HTTP client for the backend API |
+| uuid | Client-generated ids for new canvas elements |
+| framer-motion | Animations (auth screens, dashboard transitions, UI micro-interactions) |
+| lucide-react | Icon set used throughout the toolbar and panels |
+| tailwindcss, postcss, autoprefixer | Styling |
+| typescript | Type checking |
+| eslint, eslint-config-next | Linting |
 
 ## Architecture decisions
 
@@ -83,6 +116,8 @@ Runs on `http://localhost:3000`. Run the backend first — the frontend depends 
 - **Validation:** all request bodies are validated with Zod schemas before reaching controllers, so controllers can trust the shape of `req.body`.
 
 - **Inline text editing:** double-clicking a text element overlays a real HTML `<textarea>` positioned exactly over the Konva text node (matching its font size, rotation, and position), rather than using a separate modal or side-panel input, so editing feels native to the canvas.
+
+- **Auth token storage:** the JWT is stored in `localStorage` rather than an httpOnly cookie. This was a deliberate tradeoff for this deployment — frontend (Vercel) and backend (Render/Railway) live on different domains, and cookie-based auth across different domains requires `SameSite=None; Secure` plus `credentials: true` on every request, which several browsers restrict by default for third-party cookies. A `Bearer` token in an `Authorization` header sidesteps that entirely at the cost of slightly weaker XSS protection — see Known limitations below.
 
 ## API Endpoints
 
@@ -110,7 +145,7 @@ Beyond the assignment's bonus list, the UI also includes a custom dark/glass des
 
 ## Known limitations
 
-- JWTs are stored in `localStorage` on the client for simplicity. This is convenient for a small assignment app but is vulnerable to XSS in a way an httpOnly cookie wouldn't be — a production version should move to cookie-based auth.
+- JWTs are stored in `localStorage` on the client for simplicity and cross-domain deployment compatibility. This is vulnerable to XSS in a way an httpOnly cookie wouldn't be — a production version on a single shared domain should move to cookie-based auth.
 - No real-time collaboration — canvases are single-user; two people editing the same canvas simultaneously would overwrite each other's autosaves (last write wins).
 - No image elements — only Rectangle, Circle, and Text are supported, per the assignment's core requirements.
 - Undo/Redo history is per-session (held in memory, reset on reload) rather than persisted.
