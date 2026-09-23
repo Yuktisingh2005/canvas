@@ -2,9 +2,9 @@ import type { Request, Response, NextFunction } from "express";
 import { verifyToken } from "../utils/jwt";
 import { AppError } from "../utils/AppError";
 
-// Augment Express's Request type so `req.userId` is recognized everywhere downstream.
+
 declare global {
-  // eslint-disable-next-line @typescript-eslint/no-namespace
+
   namespace Express {
     interface Request {
       userId?: string;

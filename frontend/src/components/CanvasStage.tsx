@@ -10,8 +10,7 @@ const STAGE_HEIGHT = 600;
 const ANCHOR_SIZE = 9;
 const ROTATE_ANCHOR_SIZE = 20;
 
-// Inline SVG rotate-arrow icon, used both as the handle's icon and as the
-// custom cursor while hovering it.
+
 const ROTATE_ICON_SRC =
   "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%236366f1' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M21 12a9 9 0 11-3.7-7.3'/%3E%3Cpolyline points='21 3 21 9 15 9'/%3E%3C/svg%3E";
 const ROTATE_CURSOR = `url("${ROTATE_ICON_SRC}") 12 12, pointer`;
@@ -55,10 +54,7 @@ export function CanvasStage({ onExportReady }: CanvasStageProps) {
       const transformer = transformerRef.current;
       const wasVisible = transformer?.visible() ?? false;
 
-      // Hide the Transformer directly on the Konva node and force an immediate
-      // redraw — going through selectElement(null) instead would only take
-      // effect after React's next render, which is too late for a synchronous
-      // toDataURL() call right after.
+      
       transformer?.hide();
       transformer?.getLayer()?.batchDraw();
 
@@ -69,13 +65,12 @@ export function CanvasStage({ onExportReady }: CanvasStageProps) {
         transformer?.getLayer()?.batchDraw();
       }
 
-      // Also clear the selection in the store so the Properties/Layers panels
-      // reflect "nothing selected" after an export, matching the old behavior.
+      
       selectElement(null);
 
       return dataUrl;
     });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    
   }, []);
 
   useEffect(() => {
@@ -122,8 +117,7 @@ export function CanvasStage({ onExportReady }: CanvasStageProps) {
     updateElement(id, changes);
   };
 
-  // Enter inline-edit mode: hide the Konva text node + transformer, and
-  // overlay a real <textarea> positioned exactly on top of it.
+  
   function startEditingText(id: string) {
     const node = shapeRefs.current[id] as Konva.Text | undefined;
     const stageContainer = stageRef.current?.container();
@@ -248,16 +242,14 @@ export function CanvasStage({ onExportReady }: CanvasStageProps) {
                   anchor.fillPriority("pattern");
                   anchor.fillPatternImage(rotateIcon);
                   anchor.fillPatternRepeat("no-repeat");
-                  // Scale the icon to exactly fill the handle — the SVG's own
-                  // viewBox padding gives it visual breathing room already,
-                  // so no extra offset math is needed to center it.
+                 
                   anchor.fillPatternScale({
                     x: ROTATE_ANCHOR_SIZE / rotateIcon.width,
                     y: ROTATE_ANCHOR_SIZE / rotateIcon.height,
                   });
                 }
 
-                // Custom rotate cursor on hover, matching the handle's icon.
+                
                 anchor.off("mouseenter.rotateCursor mouseleave.rotateCursor");
                 anchor.on("mouseenter.rotateCursor", () => {
                   const container = anchor.getStage()?.container();

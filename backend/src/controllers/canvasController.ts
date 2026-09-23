@@ -18,8 +18,7 @@ export const createCanvas = asyncHandler(async (req: Request, res: Response) => 
 });
 
 export const listCanvases = asyncHandler(async (req: Request, res: Response) => {
-  // Only metadata for the list view — no need to ship every element over the
-  // wire until the user actually opens a specific canvas.
+  
   const canvases = await Canvas.find({ userId: req.userId })
     .select("name createdAt updatedAt")
     .sort({ updatedAt: -1 });

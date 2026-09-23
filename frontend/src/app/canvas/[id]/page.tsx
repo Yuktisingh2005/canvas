@@ -35,8 +35,7 @@ export default function CanvasEditorPage() {
 
   const isNew = params.id === "new";
 
-  // Combined signal the Toolbar's Save button reacts to — a manual save and
-  // an in-flight autosave both show the same "Saving…" state on the button.
+
   const isBusy = isSaving || autosaveStatus === "saving";
 
    useEffect(() => {
@@ -48,9 +47,7 @@ export default function CanvasEditorPage() {
     }
 
     if (isNew) {
-      // Guards against React 18 Strict Mode's double-invoke of effects in
-      // development, which would otherwise fire createCanvasApi twice and
-      // create two canvases before the URL even updates.
+
       if (hasInitiatedCreateRef.current) return;
       hasInitiatedCreateRef.current = true;
 
@@ -74,8 +71,7 @@ export default function CanvasEditorPage() {
       .finally(() => setIsLoading(false));
   }, [token, params.id]);
 
-  // Autosave: fires 2s after elements/name stop changing, once the canvas has
-  // a real id (which now happens immediately on creation, see above).
+
   useDebouncedEffect(
     () => {
       if (!canvasId || isLoading) return;
@@ -88,7 +84,7 @@ export default function CanvasEditorPage() {
     2000
   );
 
-  // Keyboard shortcuts: Ctrl/Cmd+Z to undo, Ctrl/Cmd+Shift+Z (or Ctrl+Y) to redo.
+
   useEffect(() => {
     function handleKeyDown(e: KeyboardEvent) {
       const target = e.target as HTMLElement;

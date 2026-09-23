@@ -11,10 +11,7 @@ interface AuthState {
   setHasHydrated: (value: boolean) => void;
 }
 
-// Persisted to localStorage so a refresh doesn't log the user out. `hasHydrated`
-// tracks whether persist has actually finished reading localStorage yet — until
-// it has, `token` is null even for a logged-in user, so anything gating on auth
-// must wait for hasHydrated before deciding to redirect.
+
 export const useAuthStore = create<AuthState>()(
   persist(
     (set) => ({

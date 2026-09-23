@@ -12,7 +12,7 @@ import { createCanvasSchema, updateCanvasSchema } from "../utils/schemas";
 
 const router = Router();
 
-// Every canvas route requires a valid JWT.
+
 router.use(authMiddleware);
 
 router.post("/", validate(createCanvasSchema), createCanvas);

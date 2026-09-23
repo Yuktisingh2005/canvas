@@ -110,9 +110,7 @@ export const useCanvasStore = create<CanvasState>((set, get) => ({
     const idA = sorted[index].id;
     const idB = sorted[swapWith].id;
 
-    // Build new element objects rather than mutating in place — the previous
-    // `elements` array is about to be pushed into `past` for undo, and mutating
-    // shared object references would corrupt that snapshot too.
+   
     const newElements = elements.map((el) => {
       if (el.id === idA) return { ...el, zIndex: zB };
       if (el.id === idB) return { ...el, zIndex: zA };

@@ -23,7 +23,7 @@ export interface CanvasDoc {
   updatedAt: string;
 }
 
-// Trimmed shape returned by the list endpoint (no elements array).
+
 export interface CanvasSummary {
   _id: string;
   name: string;

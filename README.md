@@ -2,7 +2,7 @@
 
 A canvas editor built for the Glazia Full Stack Developer Intern assignment — create rectangles, circles, and text; select, drag, resize, and rotate them; edit their properties; and save/load canvases per user, backed by MongoDB.
 
-**Live demo:** [add your deployed URL here]
+**Live demo:** [https://canvas-mini.vercel.app](https://canvas-mini.vercel.app)
 
 ## Tech stack
 

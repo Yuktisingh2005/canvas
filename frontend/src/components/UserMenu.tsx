@@ -19,7 +19,7 @@ export function UserMenu() {
       .join("")
       .toUpperCase() || "?";
 
-  // Close the dropdown when clicking anywhere outside it.
+  
   useEffect(() => {
     function handleClickOutside(e: MouseEvent) {
       if (menuRef.current && !menuRef.current.contains(e.target as Node)) {

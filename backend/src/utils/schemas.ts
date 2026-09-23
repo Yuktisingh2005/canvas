@@ -31,8 +31,7 @@ export const createCanvasSchema = z.object({
   elements: z.array(elementSchema).default([]),
 });
 
-// Same shape as create, but every field optional — a PUT can update just the name,
-// just the elements, or both.
+
 export const updateCanvasSchema = z.object({
   name: z.string().min(1).optional(),
   elements: z.array(elementSchema).optional(),

@@ -63,13 +63,13 @@ export default function DashboardPage() {
       <AuthBackground />
 
       <div className="relative z-10 mx-auto max-w-5xl">
-        {/* Header row: profile menu left, logout icon right */}
-                {/* Header row: profile menu on the right */}
+        {}
+                {}
         <div className="flex items-center justify-end">
           <UserMenu />
         </div>
 
-        {/* Greeting */}
+        {}
         <motion.div
           initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
@@ -84,7 +84,7 @@ export default function DashboardPage() {
           </p>
         </motion.div>
 
-        {/* Create + grid */}
+        {}
         <div className="mt-10">
           {error && (
             <p className="mb-4 rounded-lg border border-red-500/20 bg-red-500/10 px-3 py-2 text-sm text-red-300">
@@ -93,7 +93,7 @@ export default function DashboardPage() {
           )}
 
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {/* Create new canvas card */}
+            {}
             <motion.button
               onClick={handleCreate}
               whileHover={{ scale: 1.02 }}

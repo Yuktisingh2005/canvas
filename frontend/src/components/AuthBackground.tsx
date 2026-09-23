@@ -2,8 +2,7 @@
 
 import { motion } from "framer-motion";
 
-// Slow-drifting gradient blobs behind the glass card. Pure decoration —
-// pointer-events-none so it never intercepts clicks on the form above it.
+
 export function AuthBackground() {
   return (
     <div className="pointer-events-none fixed inset-0 overflow-hidden bg-zinc-950">
