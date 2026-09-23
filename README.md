@@ -3,7 +3,6 @@
 A canvas editor built for the Glazia Full Stack Developer Intern assignment — create rectangles, circles, and text; select, drag, resize, and rotate them; edit their properties; and save/load canvases per user, backed by MongoDB.
 
 **Live demo:** [add your deployed URL here]
-**Repo:** [add your repo link here]
 
 ## Tech stack
 
@@ -30,7 +29,7 @@ cd backend
 npm install
 ```
 
-Create a `.env` file in `backend/` (see `.env.example` for the exact keys needed):
+Create a `.env` file in `backend/`:
 
 ```
 MONGODB_URI=<your MongoDB Atlas connection string>
@@ -53,7 +52,7 @@ cd frontend
 npm install
 ```
 
-Create a `.env.local` file in `frontend/` (see `.env.example` for the exact keys needed):
+Create a `.env.local` file in `frontend/`:
 
 ```
 NEXT_PUBLIC_API_URL=http://localhost:5000/api
@@ -63,7 +62,7 @@ NEXT_PUBLIC_API_URL=http://localhost:5000/api
 npm run dev
 ```
 
-Runs on `http://localhost:3000`. Run the backend first — the frontend depends on it for everything past the login screen.
+Runs on `http://localhost:3000`. 
 
 ## Dependencies
 
@@ -134,9 +133,7 @@ flowchart TD
 
 ## Architecture decisions
 
-Explained simply — what each choice is, and why it was made:
-
-- **Login system (JWT):** When a user logs in, the server gives them a signed token (like a digital ID card). The frontend saves this token and sends it along with every request. The server checks the token to know who's asking and to make sure they're allowed to see or change that data. Passwords are never stored as plain text — they're hashed (scrambled in a one-way way) before saving, so even we can't read the original password.
+- **Login system (JWT):** When a user logs in, the server gives them a signed token. The frontend saves this token and sends it along with every request. The server checks the token to know who's asking and to make sure they're allowed to see or change that data. Passwords are never stored as plain text — they're hashed before saving, so even we can't read the original password.
 
 - **Each user only sees their own canvases:** Every canvas saved in the database is tagged with the id of the user who created it. Whenever the backend fetches, updates, or deletes a canvas, it always double-checks that the canvas belongs to the person making the request — so no one can access someone else's canvas, even by guessing its ID.
 
@@ -178,7 +175,7 @@ Protected routes expect `Authorization: Bearer <token>`. All canvas queries are 
 - [x] Authentication with user-owned canvases — JWT-based, canvases scoped per user
 - [x] PNG export — exports the current canvas as a downloadable PNG via Konva's `toDataURL`
 
-Beyond the assignment's bonus list, the UI also includes a custom dark/glass design system (Framer Motion transitions, animated auth screens, a profile menu, Canva-style selection handles with a custom rotate cursor) and in-place text editing directly on the canvas.
+Beyond the assignment's bonus list, the UI also includes a custom dark/glass design system (Framer Motion transitions, animated auth screens, a profile menu).
 
 ## Known limitations
 
