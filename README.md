@@ -29,7 +29,7 @@ cd backend
 npm install
 ```
 
-Create a `.env` file in `backend/` (see `.env.example` for the exact keys needed):
+Create a `.env` file in `backend/`:
 
 ```
 MONGODB_URI=<your MongoDB Atlas connection string>
