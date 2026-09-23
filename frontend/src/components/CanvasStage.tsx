@@ -50,10 +50,30 @@ export function CanvasStage({ onExportReady }: CanvasStageProps) {
     img.onload = () => setRotateIcon(img);
   }, []);
 
-  useEffect(() => {
+    useEffect(() => {
     onExportReady(() => {
+      const transformer = transformerRef.current;
+      const wasVisible = transformer?.visible() ?? false;
+
+      // Hide the Transformer directly on the Konva node and force an immediate
+      // redraw — going through selectElement(null) instead would only take
+      // effect after React's next render, which is too late for a synchronous
+      // toDataURL() call right after.
+      transformer?.hide();
+      transformer?.getLayer()?.batchDraw();
+
+      const dataUrl = stageRef.current?.toDataURL({ pixelRatio: 2 }) ?? "";
+
+      if (wasVisible) {
+        transformer?.show();
+        transformer?.getLayer()?.batchDraw();
+      }
+
+      // Also clear the selection in the store so the Properties/Layers panels
+      // reflect "nothing selected" after an export, matching the old behavior.
       selectElement(null);
-      return stageRef.current?.toDataURL({ pixelRatio: 2 }) ?? "";
+
+      return dataUrl;
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
